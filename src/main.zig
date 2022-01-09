@@ -62,14 +62,15 @@ pub fn main() anyerror!void {
     defer world.deinit();
 
     var materialGround = Lambertian.init(Color.init(0.8, 0.8, 0.0));
-    var materialCenter = Lambertian.init(Color.init(0.1, 0.2, 0.5));
-    var materialLeft = Dielectric.init(1.5);
-    var materialRight = Metal.init(Color.init(0.8, 0.6, 0.2), 0.0);
+    // var materialCenter = Lambertian.init(Color.init(0.1, 0.2, 0.5));
+    var materialCenter = Metal.init(Color.init(0.15, 0.3, 0.7), 0.1);
+    var materialLeft = Metal.init(Color.init(0.8, 0.6, 0.2), 0.0);
+    var materialRight = Dielectric.init(1.5);
 
     var sphere_a = Sphere.init(Point3.init(0, -100.5, -1), 100, &materialGround.interface);
     var sphere_b = Sphere.init(Point3.init(0.0, 0.0, -1.0), 0.5, &materialCenter.interface);
-    var sphere_c = Sphere.init(Point3.init(-1.0, 0.0, -1.0), 0.5, &materialRight.interface);
-    var sphere_d = Sphere.init(Point3.init(1.0, 0.0, -1.0), 0.5, &materialLeft.interface);
+    var sphere_c = Sphere.init(Point3.init(-1.0, 0.0, -1.0), 0.5, &materialLeft.interface);
+    var sphere_d = Sphere.init(Point3.init(1.0, 0.0, -1.0), 0.5, &materialRight.interface);
 
     try world.append(&sphere_a.interface);
     try world.append(&sphere_b.interface);
@@ -77,12 +78,20 @@ pub fn main() anyerror!void {
     try world.append(&sphere_d.interface);
 
     // camera
+    const lookfrom = Point3.init(-1.5, 2, 4);
+    const lookat = Point3.init(0, 0, -1);
+    const vup = Vec3.init(0, 1, 0);
+    const distToFocus = Vec3.sub(lookfrom, lookat).length();
+    const aperture = 2.0;
+
     var cam = Camera.init(
-        Point3.init(-1.5, 2, 4),
-        Point3.init(0, 0, -1),
-        Vec3.init(0, 1, 0),
+        lookfrom,
+        lookat,
+        vup,
         20.0,
         aspectRatio,
+        aperture,
+        distToFocus,
     );
 
     // render

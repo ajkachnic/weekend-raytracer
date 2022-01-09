@@ -41,6 +41,16 @@ pub fn Vector3(comptime T: type) type {
             }
         }
 
+        pub fn randomInUnitDisk() Self {
+            const gen = common.rnd.random().float;
+            while (true) {
+                // generate a vec between (-1, -1, 0) and (1, 1, 0)
+                const p = Vec3.init(gen(T) * 2 - 1, gen(T) * 2 - 1, 0);
+                if (p.lengthSquared() >= 1) continue;
+                return p;
+            }
+        }
+
         pub fn randomUnitVector() Self {
             return unitVector(randomInUnitSphere());
         }
