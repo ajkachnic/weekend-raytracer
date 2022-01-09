@@ -51,11 +51,13 @@ pub fn main() anyerror!void {
     const aspectRatio = 16.0 / 9.0;
     const imageWidth = 1920;
     const imageHeight = @floatToInt(comptime_int, @intToFloat(f64, imageWidth) / aspectRatio);
-    const samplesPerPixel = 100; // 100
-    const maxDepth = 50; // 50
+    const samplesPerPixel = 200; // 100
+    const maxDepth = 100; // 50
 
     std.log.debug("image width: {d}, image height: {d}\n", .{ imageWidth, imageHeight });
 
+    // world
+    // const R = std.math.cos(@floatCast(f64, std.math.pi / 4.0));
     var world = HittableList.init(allocator);
     defer world.deinit();
 
@@ -66,8 +68,8 @@ pub fn main() anyerror!void {
 
     var sphere_a = Sphere.init(Point3.init(0, -100.5, -1), 100, &materialGround.interface);
     var sphere_b = Sphere.init(Point3.init(0.0, 0.0, -1.0), 0.5, &materialCenter.interface);
-    var sphere_c = Sphere.init(Point3.init(-1.0, 0.0, -1.0), 0.5, &materialLeft.interface);
-    var sphere_d = Sphere.init(Point3.init(1.0, 0.0, -1.0), 0.5, &materialRight.interface);
+    var sphere_c = Sphere.init(Point3.init(-1.0, 0.0, -1.0), 0.5, &materialRight.interface);
+    var sphere_d = Sphere.init(Point3.init(1.0, 0.0, -1.0), 0.5, &materialLeft.interface);
 
     try world.append(&sphere_a.interface);
     try world.append(&sphere_b.interface);
@@ -75,7 +77,13 @@ pub fn main() anyerror!void {
     try world.append(&sphere_d.interface);
 
     // camera
-    var cam = Camera.init();
+    var cam = Camera.init(
+        Point3.init(-1.5, 2, 4),
+        Point3.init(0, 0, -1),
+        Vec3.init(0, 1, 0),
+        20.0,
+        aspectRatio,
+    );
 
     // render
     var image = try Image.create(allocator, imageWidth, imageHeight, 3);

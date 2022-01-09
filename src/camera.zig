@@ -11,35 +11,50 @@ pub const Camera = struct {
     horizontal: Vec3,
     vertical: Vec3,
 
-    pub fn init() Camera {
-        const aspectRatio = 16.0 / 9.0;
-        const viewportHeight = 2.0;
-        const viewportWidth = aspectRatio * viewportHeight;
-        const focalLength = 1.0;
+    pub fn init(
+        lookfrom: Point3,
+        lookat: Point3,
+        vup: Vec3,
+        vfov: f64,
+        aspect_ratio: f64,
+    ) Camera {
+        const theta = common.degreesToRadians(vfov);
+        const h = std.math.tan(theta / 2);
+        const viewportHeight = 2.0 * h;
+        const viewportWidth = aspect_ratio * viewportHeight;
 
-        const origin = common.Point3.init(0.0, 0.0, 0.0);
-        const horizontal = Vec3.init(viewportWidth, 0.0, 0.0);
-        const vertical = Vec3.init(0.0, viewportHeight, 0.0);
-        // origin - horizontal/2 - vertical/2 - Vec3.init(0, 0, focalLength)
+        const w = Vec3.sub(lookfrom, lookat).unitVector();
+        const u = Vec3.cross(vup, w).unitVector();
+        const v = Vec3.cross(w, u);
+        std.log.debug("w: {}", .{w});
+        std.log.debug("u: {}", .{u});
+        std.log.debug("v: {}", .{v});
+
+        const origin = lookfrom;
+        const horizontal = Vec3.mul(u, viewportWidth);
+        const vertical = Vec3.mul(v, viewportHeight);
+        // origin - horizontal/2 - vertical/2 - w
         const lowerLeftCorner = origin
             .sub(horizontal.div(2.0))
             .sub(vertical.div(2.0))
-            .sub(Vec3.init(0, 0, focalLength));
+            .sub(w);
 
-        return .{
+        const self = .{
             .origin = origin,
             .horizontal = horizontal,
             .vertical = vertical,
             .lower_left_corner = lowerLeftCorner,
         };
+        std.log.debug("self: {}", .{self});
+        return self;
     }
 
-    pub fn getRay(self: Camera, u: f64, v: f64) Ray {
+    pub fn getRay(self: Camera, s: f64, t: f64) Ray {
         return Ray.init(
             self.origin,
             self.lower_left_corner
-                .add(self.horizontal.mul(u))
-                .add(self.vertical.mul(v))
+                .add(self.horizontal.mul(s))
+                .add(self.vertical.mul(t))
                 .sub(self.origin),
         );
     }

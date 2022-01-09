@@ -29,6 +29,6 @@ pub var rnd = RndGen.init(0);
 
 pub const randomFloat = rnd.random().float;
 
-pub inline fn degrees_to_radians(degrees: f64) f64 {
+pub inline fn degreesToRadians(degrees: f64) f64 {
     return degrees * std.math.pi / 180.0;
 }
