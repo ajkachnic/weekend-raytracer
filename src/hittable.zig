@@ -1,6 +1,7 @@
 const std = @import("std");
 const common = @import("./common.zig");
 
+const Material = common.Material;
 const Ray = common.Ray;
 const Point3 = common.Point3;
 const Vec3 = common.Vec3;
@@ -8,6 +9,7 @@ const Vec3 = common.Vec3;
 pub const HitRecord = struct {
     p: Point3 = .{ .x = 0, .y = 0, .z = 0 },
     normal: Vec3 = .{ .x = 0, .y = 0, .z = 0 },
+    mat_ptr: *Material = undefined,
     t: f64 = 0.0,
     front_face: bool = true,
 

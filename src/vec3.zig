@@ -201,5 +201,15 @@ pub fn Vector3(comptime T: type) type {
         pub fn lengthSquared(self: Self) T {
             return self.x * self.x + self.y * self.y + self.z * self.z;
         }
+
+        pub fn nearZero(v: Self) bool {
+            const s = 1e-8;
+            return (@fabs(v.x) < s) and (@fabs(v.y) < s) and (@fabs(v.z) < s);
+        }
+
+        pub fn reflect(v: Self, n: Self) Self {
+            // v - (2n * dot(v, n));
+            return sub(v, mul(n, 2 * dot(v, n)));
+        }
     };
 }

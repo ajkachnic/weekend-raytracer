@@ -6,10 +6,14 @@ const Color = common.Color;
 const Hittable = common.Hittable;
 const HittableList = common.HittableList;
 const Image = common.Image;
+const Material = common.Material;
 const Ray = common.Ray;
 const Point3 = common.Point3;
 const Sphere = common.Sphere;
 const Vec3 = common.Vec3;
+
+const Metal = common.Metal;
+const Lambertian = common.Lambertian;
 
 fn rayColor(r: Ray, world: *Hittable, depth: u32) Color {
     var rec = common.HitRecord{};
@@ -19,14 +23,21 @@ fn rayColor(r: Ray, world: *Hittable, depth: u32) Color {
         return Color.init(0, 0, 0);
 
     if (world.hit(r, 0.001, std.math.inf_f64, &rec)) {
-        const target = rec.p
-            .add(rec.normal)
-            .add(Vec3.randomInHemisphere(rec.normal));
+        var scattered: Ray = undefined;
+        var attenuation: Color = undefined;
 
-        return Vec3.mul(
-            rayColor(Ray.init(rec.p, target.sub(rec.p)), world, depth - 1),
-            0.5,
-        );
+        if (rec.mat_ptr.scatter(r, &rec, &attenuation, &scattered)) {
+            return Vec3.mul(attenuation, rayColor(scattered, world, depth - 1));
+        }
+        return Color.init(0, 0, 0);
+        // const target = rec.p
+        //     .add(rec.normal)
+        //     .add(Vec3.randomInHemisphere(rec.normal));
+
+        // return Vec3.mul(
+        //     rayColor(Ray.init(rec.p, target.sub(rec.p)), world, depth - 1),
+        //     0.5,
+        // );
     }
 
     const unitDirection = r.dir.unitVector();
@@ -44,7 +55,7 @@ pub fn main() anyerror!void {
 
     // image
     const aspectRatio = 16.0 / 9.0;
-    const imageWidth = 800;
+    const imageWidth = 1920;
     const imageHeight = @floatToInt(comptime_int, @intToFloat(f64, imageWidth) / aspectRatio);
     const samplesPerPixel = 100; // 100
     const maxDepth = 50; // 50
@@ -54,11 +65,20 @@ pub fn main() anyerror!void {
     var world = HittableList.init(allocator);
     defer world.deinit();
 
-    var sphere_a = Sphere.init(Point3.init(0, 0, -1), 0.5);
-    var sphere_b = Sphere.init(Point3.init(0, -100.5, -1), 100);
+    var materialGround = Lambertian.init(Color.init(0.8, 0.8, 0.0));
+    var materialCenter = Lambertian.init(Color.init(0.7, 0.3, 0.3));
+    var materialLeft = Metal.init(Color.init(0.8, 0.8, 0.8), 0.3);
+    var materialRight = Metal.init(Color.init(0.8, 0.6, 0.2), 1.0);
+
+    var sphere_a = Sphere.init(Point3.init(0, -100.5, -1), 100, &materialGround.interface);
+    var sphere_b = Sphere.init(Point3.init(0.0, 0.0, -1.0), 0.5, &materialCenter.interface);
+    var sphere_c = Sphere.init(Point3.init(-1.0, 0.0, -1.0), 0.5, &materialLeft.interface);
+    var sphere_d = Sphere.init(Point3.init(1.0, 0.0, -1.0), 0.5, &materialRight.interface);
 
     try world.append(&sphere_a.interface);
     try world.append(&sphere_b.interface);
+    try world.append(&sphere_c.interface);
+    try world.append(&sphere_d.interface);
 
     // camera
     var cam = Camera.init();

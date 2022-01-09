@@ -3,6 +3,7 @@ const common = @import("./common.zig");
 
 const Hittable = common.Hittable;
 const HitRecord = common.HitRecord;
+const Material = common.Material;
 const Ray = common.Ray;
 const Point3 = common.Point3;
 const Vec3 = common.Vec3;
@@ -11,11 +12,13 @@ pub const Sphere = struct {
     center: Point3,
     radius: f64,
     interface: Hittable,
+    mat_ptr: *Material,
 
-    pub fn init(cen: Point3, r: f64) Sphere {
+    pub fn init(cen: Point3, r: f64, m: *Material) Sphere {
         return .{
             .center = cen,
             .radius = r,
+            .mat_ptr = m,
             .interface = Hittable{ .hitFn = hit },
         };
     }
@@ -44,6 +47,7 @@ pub const Sphere = struct {
 
         const outwardNormal = Vec3.sub(rec.p, self.center).div(self.radius);
         rec.setFaceNormal(r, outwardNormal);
+        rec.mat_ptr = self.mat_ptr;
 
         return true;
     }

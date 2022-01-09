@@ -9,6 +9,7 @@ pub const c = @cImport({
 const camera = @import("./camera.zig");
 const color = @import("./color.zig");
 const hittable = @import("./hittable.zig");
+const material = @import("./material.zig");
 const ray = @import("./ray.zig");
 const sphere = @import("./sphere.zig");
 const vec3 = @import("./vec3.zig");
@@ -16,6 +17,7 @@ const vec3 = @import("./vec3.zig");
 usingnamespace camera;
 usingnamespace color;
 usingnamespace hittable;
+usingnamespace material;
 usingnamespace sphere;
 usingnamespace ray;
 usingnamespace vec3;
