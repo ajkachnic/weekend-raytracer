@@ -12,6 +12,8 @@ const Point3 = common.Point3;
 const Sphere = common.Sphere;
 const Vec3 = common.Vec3;
 
+// materials
+const Dielectric = common.Dieletric;
 const Metal = common.Metal;
 const Lambertian = common.Lambertian;
 
@@ -30,14 +32,6 @@ fn rayColor(r: Ray, world: *Hittable, depth: u32) Color {
             return Vec3.mul(attenuation, rayColor(scattered, world, depth - 1));
         }
         return Color.init(0, 0, 0);
-        // const target = rec.p
-        //     .add(rec.normal)
-        //     .add(Vec3.randomInHemisphere(rec.normal));
-
-        // return Vec3.mul(
-        //     rayColor(Ray.init(rec.p, target.sub(rec.p)), world, depth - 1),
-        //     0.5,
-        // );
     }
 
     const unitDirection = r.dir.unitVector();
@@ -66,9 +60,9 @@ pub fn main() anyerror!void {
     defer world.deinit();
 
     var materialGround = Lambertian.init(Color.init(0.8, 0.8, 0.0));
-    var materialCenter = Lambertian.init(Color.init(0.7, 0.3, 0.3));
-    var materialLeft = Metal.init(Color.init(0.8, 0.8, 0.8), 0.3);
-    var materialRight = Metal.init(Color.init(0.8, 0.6, 0.2), 1.0);
+    var materialCenter = Lambertian.init(Color.init(0.1, 0.2, 0.5));
+    var materialLeft = Dielectric.init(1.5);
+    var materialRight = Metal.init(Color.init(0.8, 0.6, 0.2), 0.0);
 
     var sphere_a = Sphere.init(Point3.init(0, -100.5, -1), 100, &materialGround.interface);
     var sphere_b = Sphere.init(Point3.init(0.0, 0.0, -1.0), 0.5, &materialCenter.interface);

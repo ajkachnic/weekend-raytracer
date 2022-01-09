@@ -211,5 +211,19 @@ pub fn Vector3(comptime T: type) type {
             // v - (2n * dot(v, n));
             return sub(v, mul(n, 2 * dot(v, n)));
         }
+
+        pub fn refract(uv: Self, n: Self, etai_over_etat: f64) Self {
+            const cosTheta = std.math.min(dot(uv.neg(), n), 1.0);
+
+            const rOutPerp = mul(
+                add(uv, n.mul(cosTheta)),
+                etai_over_etat,
+            );
+            const rOutParallel = mul(
+                n,
+                -std.math.sqrt(@fabs(1.0 - rOutPerp.lengthSquared())),
+            );
+            return add(rOutPerp, rOutParallel);
+        }
     };
 }
