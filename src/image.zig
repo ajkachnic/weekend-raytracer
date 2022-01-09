@@ -89,11 +89,11 @@ pub const Image = struct {
 
     pub fn deinit(self: *Image) void {
         if (self.allocation != .no_allocation and self.data != null) {
-            if (self.allocation == .stb_allocated) {
-                c.stbi_image_free(self.data);
-            } else {
-                self.allocator.free(self.data);
-            }
+            // if (self.allocation == .stb_allocated) {
+            //     c.stbi_image_free(self.data);
+            // } else {
+            self.allocator.free(self.data.?);
+            // }
         }
     }
 };

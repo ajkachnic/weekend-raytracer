@@ -145,6 +145,14 @@ pub fn Vector3(comptime T: type) type {
             };
         }
 
+        pub fn neg(a: Self) Self {
+            return .{
+                .x = -a.x,
+                .y = -a.y,
+                .z = -a.z,
+            };
+        }
+
         pub fn unitVector(self: Self) Self {
             return self.div(self.length());
         }
