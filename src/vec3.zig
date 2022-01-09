@@ -1,4 +1,5 @@
 const std = @import("std");
+const common = @import("./common.zig");
 
 pub const Vec3 = Vector3(f64);
 
@@ -15,6 +16,42 @@ pub fn Vector3(comptime T: type) type {
 
         pub fn init(x: T, y: T, z: T) Self {
             return .{ .x = x, .y = y, .z = z };
+        }
+
+        pub inline fn random() Self {
+            const gen = common.rnd.random().float;
+            return Self.init(gen(T), gen(T), gen(T));
+        }
+
+        pub inline fn randomRange(min: T, max: T) Self {
+            // TODO: refactor to support ints
+            const gen = common.rnd.random().float;
+            return Self.init(
+                (gen(T) * max) + min,
+                (gen(T) * max) + min,
+                (gen(T) * max) + min,
+            );
+        }
+
+        pub fn randomInUnitSphere() Self {
+            while (true) {
+                const p = Self.random();
+                if (p.lengthSquared() >= 1) continue;
+                return p;
+            }
+        }
+
+        pub fn randomUnitVector() Self {
+            return unitVector(randomInUnitSphere());
+        }
+
+        pub fn randomInHemisphere(normal: Self) Self {
+            const inUnitSphere = randomInUnitSphere();
+            if (dot(inUnitSphere, normal) > 0.0) {
+                return inUnitSphere;
+            } else {
+                return inUnitSphere.neg();
+            }
         }
 
         pub fn empty() Self {

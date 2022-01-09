@@ -11,10 +11,22 @@ const Point3 = common.Point3;
 const Sphere = common.Sphere;
 const Vec3 = common.Vec3;
 
-fn rayColor(r: Ray, world: *Hittable) Color {
+fn rayColor(r: Ray, world: *Hittable, depth: u32) Color {
     var rec = common.HitRecord{};
-    if (world.hit(r, 0, std.math.inf_f64, &rec)) {
-        return Vec3.mul(Color.init(1, 1, 1).add(rec.normal), 0.5);
+
+    // If we've exceeded the ray bounce limit, no more light is gathered.
+    if (depth <= 0)
+        return Color.init(0, 0, 0);
+
+    if (world.hit(r, 0.001, std.math.inf_f64, &rec)) {
+        const target = rec.p
+            .add(rec.normal)
+            .add(Vec3.randomInHemisphere(rec.normal));
+
+        return Vec3.mul(
+            rayColor(Ray.init(rec.p, target.sub(rec.p)), world, depth - 1),
+            0.5,
+        );
     }
 
     const unitDirection = r.dir.unitVector();
@@ -34,7 +46,8 @@ pub fn main() anyerror!void {
     const aspectRatio = 16.0 / 9.0;
     const imageWidth = 800;
     const imageHeight = @floatToInt(comptime_int, @intToFloat(f64, imageWidth) / aspectRatio);
-    const samplesPerPixel = 100;
+    const samplesPerPixel = 100; // 100
+    const maxDepth = 50; // 50
 
     std.log.debug("image width: {d}, image height: {d}\n", .{ imageWidth, imageHeight });
 
@@ -69,7 +82,7 @@ pub fn main() anyerror!void {
                 const u = (@intToFloat(f64, i) + common.randomFloat(f64)) / @intToFloat(f64, imageWidth - 1);
                 const v = (@intToFloat(f64, j) + common.randomFloat(f64)) / @intToFloat(f64, imageHeight - 1);
                 var r = cam.getRay(u, v);
-                pixelColor = Color.add(pixelColor, rayColor(r, &world.interface));
+                pixelColor = Color.add(pixelColor, rayColor(r, &world.interface, maxDepth));
             }
 
             common.writeColor(data[k..], pixelColor, samplesPerPixel);

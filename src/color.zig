@@ -11,9 +11,9 @@ pub fn writeColor(out: []u8, color: common.Vec3, samples_per_pixel: u32) void {
 
     const scale = 1.0 / @intToFloat(f64, samples_per_pixel);
 
-    const r = color.x * scale;
-    const g = color.y * scale;
-    const b = color.z * scale;
+    const r = std.math.sqrt(color.x * scale);
+    const g = std.math.sqrt(color.y * scale);
+    const b = std.math.sqrt(color.z * scale);
 
     const ir = @floatToInt(u8, 256 * clamp(r, 0.0, 0.999));
     const ig = @floatToInt(u8, 256 * clamp(g, 0.0, 0.999));

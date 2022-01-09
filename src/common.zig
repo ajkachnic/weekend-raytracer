@@ -23,7 +23,7 @@ usingnamespace vec3;
 pub const Image = @import("./image.zig").Image;
 const RndGen = std.rand.DefaultPrng;
 
-var rnd = RndGen.init(0);
+pub var rnd = RndGen.init(0);
 
 pub const randomFloat = rnd.random().float;
 
